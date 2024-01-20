@@ -66,8 +66,7 @@ int main()
     {
         window.clear();
         sf::Vector2i mousePos(sf::Mouse::getPosition(window));
-       
-CalculateVisibilityPolygon(mousePos.x, mousePos.y, 1000.0f, visiblePolyongs, vecEdges);
+
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -82,7 +81,7 @@ CalculateVisibilityPolygon(mousePos.x, mousePos.y, 1000.0f, visiblePolyongs, vec
 
                 if (event.mouseButton.button == sf::Mouse::Right)
                 {
-                     
+
                     // mousePos = sf::Mouse::getPosition(window);
                 }
             }
@@ -118,12 +117,16 @@ CalculateVisibilityPolygon(mousePos.x, mousePos.y, 1000.0f, visiblePolyongs, vec
                 // window.draw(block);
             }
         }
-
+        CalculateVisibilityPolygon(mousePos.x, mousePos.y, 1000.0f, visiblePolyongs, vecEdges);
         for (auto &e : vecEdges)
         {
             sf::Vertex line[] = {
-                sf::Vertex(sf::Vector2f(e.sx, e.sy), sf::Color::White),
-                sf::Vertex(sf::Vector2f(e.ex, e.ey), sf::Color::White)};
+                sf::Vertex(sf::Vector2f(mousePos.x, mousePos.y), sf::Color::White),
+                sf::Vertex(sf::Vector2f(e.sx, e.sy), sf::Color::White)};
+            sf::CircleShape circle(6.f);
+            circle.setFillColor(sf::Color::Red);
+            circle.setPosition(sf::Vector2f(e.ex, e.ey));
+            window.draw(circle);
             window.draw(line, 2, sf::Lines);
         }
 
@@ -132,8 +135,7 @@ CalculateVisibilityPolygon(mousePos.x, mousePos.y, 1000.0f, visiblePolyongs, vec
 
             for (int i = 0; i < visiblePolyongs.size() - 1; i++)
             {
-                  sf::VertexArray vertices(sf::TriangleFan, 3);
-               
+                sf::VertexArray vertices(sf::Lines, 3);
 
                 // resize it to 5 points
                 // convex.setPointCount(3);
@@ -145,25 +147,24 @@ CalculateVisibilityPolygon(mousePos.x, mousePos.y, 1000.0f, visiblePolyongs, vec
                 // convex.setFillColor(sf::Color::White);
                 // window.draw(convex);
 
-                vertices[0] = sf::Vector2f(mousePos.x, mousePos.y);                                                   // Vertex 1
-                vertices[1] = sf::Vector2f(std::get<1>(visiblePolyongs[i]), std::get<2>(visiblePolyongs[i]));         // Vertex 2
+                vertices[0] = sf::Vector2f(mousePos.x, mousePos.y);                                                     // Vertex 1
+                vertices[1] = sf::Vector2f(std::get<1>(visiblePolyongs[i]), std::get<2>(visiblePolyongs[i]));           // Vertex 2
                 vertices[2] = (sf::Vector2f(std::get<1>(visiblePolyongs[i + 1]), std::get<2>(visiblePolyongs[i + 1]))); // Vertex 3
                 for (std::size_t i = 0; i < 3; ++i)
-            {
-                vertices[i].color = sf::Color::White; // Set the fill color to white
-            }
-            window.draw(vertices);
+                {
+                    vertices[i].color = sf::Color::White; // Set the fill color to white
+                }
+                window.draw(vertices);
 
                 // Create a vertex array to hold the triangle fan
             }
-          sf::VertexArray vertices(sf::TriangleFan, 3);
+            sf::VertexArray vertices(sf::Lines, 3);
             // define the points
             vertices[0] = sf::Vector2f(mousePos.x, mousePos.y);
             vertices[1] = sf::Vector2f(std::get<1>(visiblePolyongs[visiblePolyongs.size() - 1]),
-                                            std::get<2>(visiblePolyongs[visiblePolyongs.size() - 1]));
+                                       std::get<2>(visiblePolyongs[visiblePolyongs.size() - 1]));
             vertices[2] = (sf::Vector2f(std::get<1>(visiblePolyongs[0]), std::get<2>(visiblePolyongs[0])));
-          
-            
+
             window.draw(vertices);
         }
 
@@ -323,7 +324,7 @@ void CalculateVisibilityPolygon(float ox, float oy, float radius, std::vector<st
         {
             float rdx, rdy;
             rdx = (i == 0 ? e1.sx : e1.ex) - ox;
-            rdy = (i == 0 ? e1.sy : e1.ey) - ox;
+            rdy = (i == 0 ? e1.sy : e1.ey) - oy;
 
             float base_angle = atan2f(rdy, rdx);
             float ang = 0;
@@ -350,28 +351,28 @@ void CalculateVisibilityPolygon(float ox, float oy, float radius, std::vector<st
                     float sdx = e2.ex - e2.sx;
                     float sdy = e2.ey - e2.sy;
                     if (fabs(sdx - rdx) > 0.0f && fabs(sdy - rdy) > 0.0f)
-						{
-							// t2 is normalised distance from line segment start to line segment end of intersect point
-							float t2 = (rdx * (e2.sy - oy) + (rdy * (ox - e2.sx))) / (sdx * rdy - sdy * rdx);
-							// t1 is normalised distance from source along ray to ray length of intersect point
-							float t1 = (e2.sx + sdx * t2 - ox) / rdx;
+                    {
+                        // t2 is normalised distance from line segment start to line segment end of intersect point
+                        float t2 = (rdx * (e2.sy - oy) + (rdy * (ox - e2.sx))) / (sdx * rdy - sdy * rdx);
+                        // t1 is normalised distance from source along ray to ray length of intersect point
+                        float t1 = (e2.sx + sdx * t2 - ox) / rdx;
 
-							// If intersect point exists along ray, and along line 
-							// segment then intersect point is valid
-							if (t1 > 0 && t2 >= 0 && t2 <= 1.0f)
-							{
-								// Check if this intersect point is closest to source. If
-								// it is, then store this point and reject others
-								if (t1 < min_t1)
-								{
-									min_t1 = t1;
-									min_px = ox + rdx * t1;
-									min_py = oy + rdy * t1;
-									min_ang = atan2f(min_py - oy, min_px - ox);
-									valid = true;
-								}
-							}
-						}
+                        // If intersect point exists along ray, and along line
+                        // segment then intersect point is valid
+                        if (t1 > 0 && t2 >= 0 && t2 <= 1.0f)
+                        {
+                            // Check if this intersect point is closest to source. If
+                            // it is, then store this point and reject others
+                            if (t1 < min_t1)
+                            {
+                                min_t1 = t1;
+                                min_px = ox + rdx * t1;
+                                min_py = oy + rdy * t1;
+                                min_ang = atan2f(min_py - oy, min_px - ox);
+                                valid = true;
+                            }
+                        }
+                    }
                 }
                 if (valid)
                 {

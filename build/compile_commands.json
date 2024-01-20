@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/lays/Documents/ray-tracing-test/build",
+  "command": "/usr/bin/g++   -g -std=gnu++17 -o CMakeFiles/myapp.dir/main.cpp.o -c /home/lays/Documents/ray-tracing-test/main.cpp",
+  "file": "/home/lays/Documents/ray-tracing-test/main.cpp",
+  "output": "CMakeFiles/myapp.dir/main.cpp.o"
+}
+]
