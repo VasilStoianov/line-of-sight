@@ -110,42 +110,16 @@ int main()
                     rect.setPosition(sf::Vector2f(x * blockWidth, y * blockWidth));
                     window.draw(rect);
                 }
-
-                // Draw or perform operations with the block at position (x, y)
-                // Example: sf::RectangleShape block(sf::Vector2f(blockWidth, blockHeight));
-                // block.setPosition(x, y);
-                // window.draw(block);
             }
         }
         CalculateVisibilityPolygon(mousePos.x, mousePos.y, 1000.0f, visiblePolyongs, vecEdges);
-        for (auto &e : vecEdges)
-        {
-            sf::Vertex line[] = {
-                sf::Vertex(sf::Vector2f(mousePos.x, mousePos.y), sf::Color::White),
-                sf::Vertex(sf::Vector2f(e.sx, e.sy), sf::Color::White)};
-            sf::CircleShape circle(6.f);
-            circle.setFillColor(sf::Color::Red);
-            circle.setPosition(sf::Vector2f(e.ex, e.ey));
-            window.draw(circle);
-            window.draw(line, 2, sf::Lines);
-        }
 
         if (visiblePolyongs.size() > 1)
         {
 
             for (int i = 0; i < visiblePolyongs.size() - 1; i++)
             {
-                sf::VertexArray vertices(sf::Lines, 3);
-
-                // resize it to 5 points
-                // convex.setPointCount(3);
-
-                // // define the points
-                // convex.setPoint(0, sf::Vector2f(mousePos.x, mousePos.y));
-                // convex.setPoint(1, sf::Vector2f(std::get<1>(visiblePolyongs[i]), std::get<2>(visiblePolyongs[i])));
-                // convex.setPoint(2, sf::Vector2f(std::get<1>(visiblePolyongs[i + 1]), std::get<2>(visiblePolyongs[i + 1])));
-                // convex.setFillColor(sf::Color::White);
-                // window.draw(convex);
+                sf::VertexArray vertices(sf::TrianglesFan, 3);
 
                 vertices[0] = sf::Vector2f(mousePos.x, mousePos.y);                                                     // Vertex 1
                 vertices[1] = sf::Vector2f(std::get<1>(visiblePolyongs[i]), std::get<2>(visiblePolyongs[i]));           // Vertex 2
@@ -158,7 +132,7 @@ int main()
 
                 // Create a vertex array to hold the triangle fan
             }
-            sf::VertexArray vertices(sf::Lines, 3);
+            sf::VertexArray vertices(sf::TriangleFan, 3);
             // define the points
             vertices[0] = sf::Vector2f(mousePos.x, mousePos.y);
             vertices[1] = sf::Vector2f(std::get<1>(visiblePolyongs[visiblePolyongs.size() - 1]),
