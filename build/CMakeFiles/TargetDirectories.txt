@@ -1,3 +1,0 @@
-/home/lays/Documents/ray-tracing-test/build/CMakeFiles/myapp.dir
-/home/lays/Documents/ray-tracing-test/build/CMakeFiles/edit_cache.dir
-/home/lays/Documents/ray-tracing-test/build/CMakeFiles/rebuild_cache.dir
